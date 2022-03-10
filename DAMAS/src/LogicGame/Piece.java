@@ -1,0 +1,50 @@
+package LogicGame;
+
+import java.util.ArrayList;
+
+public abstract class Piece {
+	
+	public final static boolean WHITE = true;
+	public final static boolean BLACK = false;
+	public final static Piece EMPTY = null;
+	
+	protected boolean colour;
+	
+	public Piece(boolean colour) {
+		SetColour(colour);
+	}
+	
+	public void SetColour(boolean colour) {
+		this.colour = colour;
+	}
+	
+	public boolean GetColour() {
+		return this.colour;
+	}
+	
+	public abstract ArrayList<String> GetValidMoves (ChessBoard board, String posistion);
+	
+	public boolean IsInsideBoard(int col, int row) {
+		if(col >= 0 && col < ChessBoard.COLS && row >= 0 && row < ChessBoard.ROWS) {
+			return true;
+		}		
+		return false;
+	}
+	
+	/*
+	 * COL:
+	 * return position.charAt(0) - 'a';
+	 * ROW:
+	 * return position.charAt(0) - '1';
+	 * */
+		
+	public static String convertPosString(int col, int row) {
+		String position = "";
+		position += (char)('a' + col);
+		position += (char)('1' + row);
+		return position;
+	}
+	
+}
+
+
