@@ -12,7 +12,7 @@ public class CheckersException extends Exception{
 	public final static String INCORRECT_OPTION = ">> The selected option is not available";
 	public final static String INCORRECT_CELL_SELECTION = ">> The selected cell is out of bounds";
 	public final static String INCORRECT_MOVE_VALUE = ">> The move has an incorrect format";
-	public final static String NO_PIECE_ON_CELL = ">> There´s no piece on initial position - ";
+	public final static String NO_PIECE_ON_CELL = ">> There is not piece on initial position - ";
 	public final static String PLAYER_MUST_MOVE_HIS_PIECES = ">> Player only can move his pieces - Its turn for ";
 	public final static String ILEGAL_MOVE = ">> The move is ilegal";
 	public final static String GAME_STILL_IN_PLAY = ">> The game is still in play, there's no winner yet";

@@ -130,7 +130,8 @@ public class Checkers {
 		}
 
 		// Ask ChessBoard to move the piece
-		if (chessBoard.movePiece(initialPosition, finalPosition, this.player)) {	
+		chessBoard.movePiece(initialPosition, finalPosition, this.player);
+		if (!chessBoard.isThereWinner()) {	
 			this.player = this.player ? Piece.BLACK : Piece.WHITE;
 			System.out.println(">> Done");
 		}
@@ -139,7 +140,7 @@ public class Checkers {
 			System.out.println(">> Game ended, winner " + (chessBoard.getWinnerColour() ? "WHITE" : "BLACK"));
 		}
 	}
-
+	
    /**
     * Method for debugging purposes 
     * Remove after implementation
@@ -254,64 +255,104 @@ public class Checkers {
 		//Checkers g = new Checkers();
 		//g.play();
 		
-		
-		
-		
+		RunTests();
+	}
+	
+	public static void RunTests() {
 		System.out.println("Test Start!");
 		ChessBoard board = new ChessBoard();
 		System.out.println(board.toString());
 		
 		
 		//Test 1:
-		ResetChessBoard(board);
+		board.ResetBoard();
 		board.setPiece(new Pawn(Piece.WHITE), "d2");
 		try {
 			board.movePiece("d2","d3", Piece.WHITE);
+			System.out.println("Test 1: ✅");
 		} catch (Exception e) {
-			System.err.println("Error 1");
+			System.err.println("Error Test 1: movimiento incorrecto d2 d3");
 		}
 		
 		//Test 2:
-		ResetChessBoard(board);
+		board.ResetBoard();
 		board.setPiece(new Pawn(Piece.WHITE), "d2");
 		try {
 			board.movePiece("d2","e3", Piece.WHITE);
-			
+			System.out.println("Test 2: ✅");
 		} catch (Exception e) {
-			System.err.println("Error 2");
+			System.err.println("Error Test 2");
 		}
 		
 		//Test 3:
-		ResetChessBoard(board);
+		board.ResetBoard();
 		board.setPiece(new Pawn(Piece.WHITE), "d2");
 		try {
 			board.movePiece("d2","c3", Piece.WHITE);
-			
+			System.out.println("Test 3: ✅");
 		} catch (Exception e) {
-			System.err.println("Error 3");
+			System.err.println("Error Test 3");
 		}
 		
 		//Test 4:
-		ResetChessBoard(board);
+		board.ResetBoard();
 		board.setPiece(new Pawn(Piece.WHITE), "e3");
 		board.setPiece(new Pawn(Piece.BLACK), "f4");
 		try {
 			board.movePiece("e3","g5", Piece.WHITE);
-			
+			System.out.println("Test 4: ✅");
 		} catch (Exception e) {
-			System.err.println("Error 4");
+			System.err.println("Error Test 4");
+		}
+		
+		//Test 5:
+		board.ResetBoard();
+		board.setPiece(new Pawn(Piece.BLACK), "b6");
+		try {
+			board.movePiece("b6","a5", Piece.BLACK);
+			System.out.println("Test 5: ✅");
+		} catch (Exception e) {
+			System.err.println("Error Test 5");
+		}
+		
+		//Test 6:
+		board.ResetBoard();
+		board.setPiece(new Pawn(Piece.BLACK), "b6");
+		try {
+			board.movePiece("b6","c7", Piece.BLACK);
+			System.out.println("Test 6: ✅");
+		} catch (Exception e) {
+			System.err.println("Error Test 6: moviento incorrecto b6 c7");
+		}
+		
+		//Test 7:
+		board.ResetBoard();
+		Piece.TOTAL_BLACK_PIECES = 0;
+		Piece.TOTAL_WHITE_PIECES = 0;
+		board.setPiece(new Pawn(Piece.WHITE), "e3");
+		board.setPiece(new Pawn(Piece.WHITE), "g3");
+		board.setPiece(new Pawn(Piece.BLACK), "h6");
+		try {
+			board.movePiece("e3","f4", Piece.WHITE);
+			board.movePiece("h6","g5", Piece.BLACK);
+			board.movePiece("f4","h6", Piece.WHITE);
+			System.out.println("Test 7: ✅");
+		} catch (Exception e) {
+			System.err.println("Error Test 7: no puede comer f4 h6");
+		}
+		
+		
+		//Test 8:
+		board.ResetBoard();
+		board.setPiece(new Pawn(Piece.BLACK), "h6");
+		try {
+			board.movePiece("h6","i5", Piece.BLACK);
+			System.out.println("Test 8: ✅");
+		} catch (Exception e) {
+			System.err.println("Error Test 8: moviento fuera del tablero h6 i5");
 		}
 		
 		System.out.println("Test finished!");
-		
 	}
 	
-	public static void ResetChessBoard(ChessBoard board) {
-		for(int i = 0; i < ChessBoard.COLS; i++) {
-			for (int j = 0; j < ChessBoard.ROWS; j++) {
-				String pos = Piece.convertPosString(i, j);
-				board.setPiece(Piece.EMPTY, pos);	
-			}
-		}
-	}
 }

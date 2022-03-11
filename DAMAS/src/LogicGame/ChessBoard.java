@@ -6,8 +6,12 @@ public class ChessBoard {
 
 	public final static int COLS = 8;
 	public final static int ROWS = 8;
+	private ArrayList<Piece> killedWhite; 
+	private ArrayList<Piece> killedBlack; 
 	
 	ChessBoard(){
+		killedWhite = new ArrayList<Piece>();
+		killedBlack = new ArrayList<Piece>();
 		board = new Cell[ROWS][COLS];
 		initializeBoard();
 		initializePieces();
@@ -45,13 +49,64 @@ public class ChessBoard {
 		setPiece(aux, finalPosition);
 		initialCell.empty();
 		
+		if(isThereAJump(initialPosition, finalPosition)) {
+			Cell cell = getAkillerCell(initialPosition, finalPosition);
+			if(player) {
+				killedWhite.add(cell.getPiece());
+			} else {
+				killedBlack.add(cell.getPiece());
+			}
+			cell.empty();
+		}
+		
 		//TODO return true if game is finished (because someone is the winner or there is a draw)
-		return false;	
+		return true;	
+	}
+	
+	private boolean isThereAJump(String initialPosition , String finalPosition) {
+		int col_ini = getCol(initialPosition);
+		int row_ini = getRow(initialPosition);
+		
+		int col_fin = getCol(finalPosition);
+		int row_fin = getRow(finalPosition);
+		
+		return (Math.abs(col_ini - col_fin) + Math.abs(row_ini - row_fin) > 2);
+	}
+	
+	private Cell getAkillerCell(String initialPosition, String finalPosition) {
+		int col_ini = getCol(initialPosition);
+		int row_ini = getRow(initialPosition);
+	
+		int col_fin = getCol(finalPosition);
+		int row_fin = getRow(finalPosition);
+	
+		int col = (col_ini + col_fin) / 2;
+		int row = (row_ini + row_fin) / 2;
+		
+		return board[col][row];
 	}
 	
 	public boolean getWinnerColour() {
-		//TODO completar la función getWinnerColour
-		return true;
+		return Piece.TOTAL_BLACK_PIECES == killedBlack.size()
+			? Piece.WHITE
+			: Piece.BLACK;
+	}
+	
+	public boolean isThereWinner() {
+		return Piece.TOTAL_BLACK_PIECES == killedBlack.size();
+	}
+	
+	public void ResetBoard() {
+		Piece.TOTAL_BLACK_PIECES = 0;
+		Piece.TOTAL_WHITE_PIECES = 0;
+		this.killedBlack = new ArrayList<Piece>();
+		this.killedWhite = new ArrayList<Piece>();
+		
+		for (int row = ROWS - 1; row >= 0; row--) {
+			for (int col = 0; col < COLS; col++) {
+				board[row][col].SetPiece(Piece.EMPTY);
+			}
+		}
 	}
 	
 	private void initializeBoard() {
@@ -98,15 +153,14 @@ public class ChessBoard {
 	
 	public void setPiece(Piece piece, String position) {
 		//Cell cellAux=this.getCell(position);
-		int col=getCol(position);
-		int row=getRow(position);
+		int col = getCol(position);
+		int row = getRow(position);
 		 board[row][col].SetPiece(piece);
-		
 	}
 	
 	public Cell getCell(String position) {
-		int col=getCol(position);
-		int row=getRow(position);
+		int col = getCol(position);
+		int row = getRow(position);
 		return board[row][col];
 	}
 	
@@ -149,7 +203,7 @@ public class ChessBoard {
 		String chessBoard = "";
 		
 		//-----Line Top------------------------------
-		String lineTop = "   a  b  c  d  e  f  g  h"+NL;
+		String lineTop = "   a  b  c  d  e  f  g  h    killed pieces"+NL;
 		lineTop += "  " + top_left;
 		for (int col = 0; col < COLS -1 ; col++) {
 		 lineTop += horizontal + horizontal + top;
@@ -172,7 +226,10 @@ public class ChessBoard {
 		lineMiddle += horizontal + horizontal + right;
 		 
 		//---- Print all the board
-		chessBoard = lineTop + NL;
+		
+		chessBoard = lineTop + "  " + killedBlack + NL;
+		
+		
 		for (int row = ROWS - 1; row >=0; row--) {
 			String fila = "";
 			for (int col = 0; col < COLS; col++) {
@@ -184,13 +241,13 @@ public class ChessBoard {
 			if (row>0) {
 				chessBoard += space + lineMiddle + NL;
 			}else {
-				chessBoard += space +  lineBottom + NL;
+				chessBoard += space +  lineBottom + "  " + killedWhite + NL;
 			 }
 				 
 			 
 		 }
 		
-		chessBoard += "   a  b  c  d  e  f  g  h"+NL;
+		chessBoard += "   a  b  c  d  e  f  g  h    killed pieces"+NL;
 		return chessBoard;
 	}
 	
