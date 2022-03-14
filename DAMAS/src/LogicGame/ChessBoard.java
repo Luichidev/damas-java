@@ -8,14 +8,17 @@ public class ChessBoard {
 	public final static int ROWS = 8;
 	private ArrayList<Piece> killedWhite; 
 	private ArrayList<Piece> killedBlack; 
+	private ArrayList<String> saveMoves;
+	private boolean PendingMovesToWrite;
 	
 	ChessBoard(){
 		killedWhite = new ArrayList<Piece>();
 		killedBlack = new ArrayList<Piece>();
+		saveMoves = new ArrayList<String>();
+		PendingMovesToWrite = false;
 		board = new Cell[ROWS][COLS];
 		initializeBoard();
 		initializePieces();
-		
 	}
 	
 	boolean movePiece( String initialPosition, String finalPosition, boolean player) throws CheckersException {
@@ -46,20 +49,29 @@ public class ChessBoard {
 		}
 		
 		Piece aux = initialCell.getPiece();
+		int row = getRow(finalPosition);
+		if(row == 0 || row == ROWS - 1) {
+			aux = new Queen(aux.GetColour());
+		}
+		
 		setPiece(aux, finalPosition);
 		initialCell.empty();
 		
 		if(isThereAJump(initialPosition, finalPosition)) {
 			Cell cell = getAkillerCell(initialPosition, finalPosition);
-			if(player) {
-				killedWhite.add(cell.getPiece());
+			Piece piece = cell.getPiece();
+			if (piece.colour == Piece.WHITE) {
+				killedWhite.add(piece);
 			} else {
-				killedBlack.add(cell.getPiece());
+				killedBlack.add(piece);
 			}
 			cell.empty();
 		}
 		
-		//TODO return true if game is finished (because someone is the winner or there is a draw)
+		String move = initialPosition + " " + finalPosition; 
+		saveMoves.add(move);
+		setPendingMovesToWrite(true);
+		
 		return true;	
 	}
 	
@@ -95,6 +107,20 @@ public class ChessBoard {
 	public boolean isThereWinner() {
 		return Piece.TOTAL_BLACK_PIECES == killedBlack.size();
 	}
+	
+	
+	public ArrayList<String> getMoves() {
+		return saveMoves;
+	}
+	
+	public boolean isPendingMovesToWrite() {
+		return PendingMovesToWrite;
+	}
+	
+	public void setPendingMovesToWrite(boolean pendingMovesToWrite) {
+		PendingMovesToWrite = pendingMovesToWrite;
+	}
+	
 	
 	public void ResetBoard() {
 		Piece.TOTAL_BLACK_PIECES = 0;
@@ -202,52 +228,61 @@ public class ChessBoard {
 		
 		String chessBoard = "";
 		
-		//-----Line Top------------------------------
-		String lineTop = "   a  b  c  d  e  f  g  h    killed pieces"+NL;
+		// -----Line Top------------------------------
+		String lineTop = "   a  b  c  d  e  f  g  h   Killed pieces" + NL;
 		lineTop += "  " + top_left;
-		for (int col = 0; col < COLS -1 ; col++) {
-		 lineTop += horizontal + horizontal + top;
+		for (int col = 0; col < COLS - 1; col++) {
+			lineTop += horizontal + horizontal + top;
 		}
 		lineTop += horizontal + horizontal + top_right;
-		
-		 
-		//-----Line Bottom------------------------------
+
+		// -----Line Bottom------------------------------
 		String lineBottom = " " + bottom_left;
-		for (int col = 0; col < COLS -1; col++) {
-		 lineBottom += horizontal + horizontal + bottom;
+		for (int col = 0; col < COLS - 1; col++) {
+			lineBottom += horizontal + horizontal + bottom;
 		}
 		lineBottom += horizontal + horizontal + bottom_right;
-		
-		//-----Line Middle--------------------------------
-		String lineMiddle= " " + left;
-		for (int col = 0; col < COLS -1; col++) {
-		lineMiddle += horizontal + horizontal + center;
+
+		// -----Line Middle--------------------------------
+		String lineMiddle = " " + left;
+		for (int col = 0; col < COLS - 1; col++) {
+			lineMiddle += horizontal + horizontal + center;
 		}
 		lineMiddle += horizontal + horizontal + right;
-		 
-		//---- Print all the board
-		
-		chessBoard = lineTop + "  " + killedBlack + NL;
-		
-		
-		for (int row = ROWS - 1; row >=0; row--) {
+
+		// ---- Print all the board
+		chessBoard = lineTop + NL;
+		for (int row = ROWS - 1; row >= 0; row--) {
 			String fila = "";
 			for (int col = 0; col < COLS; col++) {
-				fila+= board[row][col].toString() + vertical ;
+				fila += board[row][col].toString() + vertical;
 
-				 
 			}
-			chessBoard += (row+1) + space +  vertical + fila + NL;
-			if (row>0) {
+			chessBoard += (row + 1) + space + vertical + fila;
+			if (row + 1 == 8) {
+				chessBoard += "[";
+				for (Piece piece : killedBlack) {
+					chessBoard += piece.toString() + ",";
+				}
+				chessBoard += "]";
+			} else if (row + 1 == 1) {
+				chessBoard += "[";
+				for (Piece piece : killedWhite) {
+					chessBoard += piece.toString() + ",";
+				}
+				chessBoard += "]";
+			}
+			chessBoard += NL;
+
+			if (row > 0) {
 				chessBoard += space + lineMiddle + NL;
-			}else {
-				chessBoard += space +  lineBottom + "  " + killedWhite + NL;
-			 }
-				 
-			 
-		 }
-		
-		chessBoard += "   a  b  c  d  e  f  g  h    killed pieces"+NL;
+			} else {
+				chessBoard += space + lineBottom + NL;
+			}
+
+		}
+
+		chessBoard += "   a  b  c  d  e  f  g  h   Killed pieces" + NL;
 		return chessBoard;
 	}
 	

@@ -2,6 +2,7 @@ package LogicGame;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.regex.*;
 
 /**
@@ -21,12 +22,14 @@ public class Checkers {
 	private boolean startedGame = false;
 	private boolean player;
 	private boolean DEVELOPMENT_MODE = true;
+	private CheckersIO io;
 
    /**
     * Default constructor. It initializes BufferedReader.
     */
 	public Checkers() {
 		in = new BufferedReader(new InputStreamReader(System.in));
+		io = new CheckersIO();
 	}
 
    /**
@@ -42,10 +45,16 @@ public class Checkers {
 		else
 			sb.append("2. Move a piece").append(NL);
 		
-		sb.append("3. Exit").append(NL);
+		sb.append("3. Load previous game").append(NL);
+		if (chessBoard==null || !chessBoard.isPendingMovesToWrite()) {
+			sb.append("4. Save current game").append(NL);
+		} else {
+			sb.append("4. Save current game (*)").append(NL);
+		}
+		sb.append("5. Exit").append(NL);
 		
 		if (this.DEVELOPMENT_MODE)
-			sb.append("4. Debug Cell").append(NL);
+			sb.append("6. Debug Cell").append(NL);
 		
 		sb.append("------------------------").append(NL);
 		sb.append("Select option : ");
@@ -92,6 +101,52 @@ public class Checkers {
 		}
 		return move;
 	}
+	
+	 /**
+	    * Private method used to manage input issues: set the input file
+	    * which contains moves, read the file, put all moves into an 
+	    * ArrayList<String> and then for each move executes movePiece(...)
+	    * method.
+	    */
+	private void manageInput() {
+			
+		String inputFile;
+		System.out.print("Input file : ");
+
+		try {
+			inputFile = in.readLine();
+			io.setInputFile(inputFile);
+			ArrayList<String> movesAux=io.read();
+
+			for (int i=0; i<movesAux.size(); i++) {		
+				movePiece(movesAux.get(i));
+			}
+			chessBoard.setPendingMovesToWrite(false);
+				
+		} catch (Exception e) {
+			inputFile = "";
+		}
+	}
+		
+   /**
+    * Private method used to manage output issues: set the output file,
+    * get from ChessBoard the ArrayList<String> which contains 
+    * all the moves of the game, and write them into the output file.
+    */
+	private void manageOutput() {
+			
+		String outputFile;
+		System.out.print("Output file : ");
+
+		try {
+			outputFile = in.readLine();
+			io.setOutputFile(outputFile);
+			io.write(chessBoard.getMoves());
+			chessBoard.setPendingMovesToWrite(false);
+		} catch (Exception e) {
+			outputFile = "";
+		}
+	}	
 
    /**
     * Private method used to create a ChessBoard object and
@@ -221,10 +276,23 @@ public class Checkers {
 					move = this.readMove();
 					movePiece(move);
 					break;
-				case 3:
+				case 3: // Load
+					initializeBoard();
+					this.player = Piece.WHITE;
+					manageInput();
+					if (this.player) {
+						System.out.println(">> White turn");
+					} else {
+						System.out.println(">> Black turn");
+					}
+					break;
+				case 4: // Save
+					manageOutput();
+					break;
+				case 5:
 					exit();
 					break;
-				case 4:
+				case 6:
 					if (!this.DEVELOPMENT_MODE)
 						throw new CheckersException(
 								CheckersException.INCORRECT_OPTION);
@@ -252,10 +320,11 @@ public class Checkers {
     * @param args Unused.
     */
 	public static void main(String args[]) {
-		//Checkers g = new Checkers();
-		//g.play();
 		
-		RunTests();
+		Checkers g = new Checkers();
+		g.play();
+		
+		//RunTests();
 	}
 	
 	public static void RunTests() {
@@ -353,6 +422,38 @@ public class Checkers {
 		}
 		
 		System.out.println("Test finished!");
+		
+		System.out.println("Test writing in file Start!");
+		CheckersIO io = new CheckersIO();
+		
+		try {
+			ArrayList<String> moves = new ArrayList<String>();
+			moves.add("a2 a3");
+			moves.add("a7 a5");
+			moves.add("b2 b4");
+			moves.add("a5 b4");
+			moves.add("a3 b4");
+			io.setOutputFile("move1.txt");
+			io.write(moves);
+			System.out.println("Test writing: ✅");
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+		
+		
+		try {
+			io.setInputFile("move1.txt");
+			ArrayList<String> moves =  io.read();
+			
+			for (String move : moves) {
+				System.out.println(move);
+			}
+			System.out.println("Test reading: ✅");
+		} catch (Exception e) {
+			System.err.println(e.toString());
+		}
+		
+		System.out.println("Test writing/reading in file finish!");
 	}
 	
 }
