@@ -22,7 +22,7 @@ public class Checkers {
 	private boolean startedGame = false;
 	private boolean player;
 	private boolean DEVELOPMENT_MODE = true;
-	private CheckersIO io;
+	private CheckersIO io = null;
 
    /**
     * Default constructor. It initializes BufferedReader.

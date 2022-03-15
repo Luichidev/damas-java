@@ -8,14 +8,14 @@ public class ChessBoard {
 	public final static int ROWS = 8;
 	private ArrayList<Piece> killedWhite; 
 	private ArrayList<Piece> killedBlack; 
-	private ArrayList<String> saveMoves;
-	private boolean PendingMovesToWrite;
+	private ArrayList<String> savedMoves;
+	private boolean pendingMovesToWrite;
 	
 	ChessBoard(){
 		killedWhite = new ArrayList<Piece>();
 		killedBlack = new ArrayList<Piece>();
-		saveMoves = new ArrayList<String>();
-		PendingMovesToWrite = false;
+		savedMoves = new ArrayList<String>();
+		pendingMovesToWrite = false;
 		board = new Cell[ROWS][COLS];
 		initializeBoard();
 		initializePieces();
@@ -68,8 +68,7 @@ public class ChessBoard {
 			cell.empty();
 		}
 		
-		String move = initialPosition + " " + finalPosition; 
-		saveMoves.add(move);
+		savedMoves.add(initialPosition + " " + finalPosition);
 		setPendingMovesToWrite(true);
 		
 		return true;	
@@ -110,15 +109,15 @@ public class ChessBoard {
 	
 	
 	public ArrayList<String> getMoves() {
-		return saveMoves;
+		return savedMoves;
 	}
 	
 	public boolean isPendingMovesToWrite() {
-		return PendingMovesToWrite;
+		return pendingMovesToWrite;
 	}
 	
-	public void setPendingMovesToWrite(boolean pendingMovesToWrite) {
-		PendingMovesToWrite = pendingMovesToWrite;
+	public void setPendingMovesToWrite(boolean toWrite) {
+		pendingMovesToWrite = toWrite;
 	}
 	
 	
